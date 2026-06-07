@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Невропатолог Онлайн – 5 минутта жауап</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #0a1628;
+      --navy-mid:  #102040;
+      --teal:      #00c6b8;
+      --teal-dim:  #00a89b;
+      --gold:      #e8c87a;
+      --white:     #f0f4f8;
+      --muted:     #8aa0bb;
+      --card-bg:   rgba(16,32,64,0.7);
+      --radius:    16px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ── Canvas background ── */
+    #neural-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Layout ── */
+    .page {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 6vw;
+      border-bottom: 1px solid rgba(0,198,184,0.12);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,22,40,0.85);
+    }
+    .logo {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--teal);
+      letter-spacing: -0.01em;
+    }
+    .logo span { color: var(--gold); }
+    .nav-cta {
+      background: var(--teal);
+      color: var(--navy);
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 10px 22px;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      white-space: nowrap;
+    }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,198,184,0.35); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 100px 6vw 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,198,184,0.12);
+      border: 1px solid rgba(0,198,184,0.3);
+      color: var(--teal);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 7px 16px;
+      border-radius: 50px;
+      margin-bottom: 28px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .badge::before {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--teal);
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:0.4; transform:scale(1.5); }
+    }
+
+    h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+    h1 em {
+      font-style: normal;
+      color: var(--teal);
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--muted);
+      max-width: 480px;
+      margin-bottom: 40px;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+    .hero-sub strong { color: var(--white); font-weight: 500; }
+
+    .hero-ctas {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--teal);
+      color: var(--navy);
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 16px 30px;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,198,184,0.4); }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: transparent;
+      color: var(--white);
+      font-weight: 500;
+      font-size: 1rem;
+      padding: 16px 28px;
+      border-radius: 50px;
+      border: 1px solid rgba(255,255,255,0.18);
+      text-decoration: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--teal); background: rgba(0,198,184,0.07); }
+
+    /* ── HERO RIGHT: Stats card ── */
+    .hero-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(0,198,184,0.15);
+      border-radius: 24px;
+      padding: 36px;
+      backdrop-filter: blur(20px);
+      animation: fadeUp 0.7s 0.2s ease both;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(0,198,184,0.18) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .stat-item {
+      text-align: center;
+      padding: 20px;
+      background: rgba(0,198,184,0.05);
+      border-radius: 14px;
+      border: 1px solid rgba(0,198,184,0.1);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .stat-item:hover { border-color: var(--teal); transform: translateY(-3px); }
+    .stat-num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--teal);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(0,198,184,0.12);
+      margin: 28px 0;
+    }
+    .trust-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .trust-icon {
+      width: 36px; height: 36px;
+      background: rgba(0,198,184,0.12);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    /* ── SECTION HELPERS ── */
+    section { padding: 90px 6vw; max-width: 1280px; margin: 0 auto; }
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(1.9rem, 3vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
+    }
+    .section-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.7;
+      max-width: 520px;
+    }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-top: 52px;
+    }
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(0,198,184,0.1);
+      border-radius: var(--radius);
+      padding: 30px 26px;
+      backdrop-filter: blur(14px);
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .feature-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.25s, box-shadow 0.25s;
+    }
+    .feature-card:hover {
+      border-color: var(--teal);
+      transform: translateY(-5px);
+      box-shadow: 0 16px 40px rgba(0,198,184,0.12);
+    }
+    .feature-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, rgba(0,198,184,0.2), rgba(0,198,184,0.05));
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 18px;
+    }
+    .feature-title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 8px;
+      color: var(--white);
+    }
+    .feature-desc {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: flex;
+      gap: 20px;
+      position: relative;
+      padding-bottom: 32px;
+    }
+    .step:last-child { padding-bottom: 0; }
+    .step-line {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .step-num {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--navy-mid);
+      border: 2px solid var(--teal);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: var(--teal);
+      flex-shrink: 0;
+    }
+    .step-connector {
+      width: 2px;
+      flex: 1;
+      background: linear-gradient(to bottom, var(--teal), transparent);
+      margin-top: 6px;
+    }
+    .step:last-child .step-connector { display: none; }
+    .step-body { padding-top: 8px; }
+    .step-title { font-weight: 600; font-size: 1rem; margin-bottom: 6px; }
+    .step-desc { font-size: 0.875rem; color: var(--muted); line-height: 1.6; }
+
+    /* Price card */
+    .price-card {
+      background: linear-gradient(145deg, rgba(0,198,184,0.15), rgba(10,22,40,0.9));
+      border: 1px solid rgba(0,198,184,0.3);
+      border-radius: 24px;
+      padding: 44px 38px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .price-card::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; right: -80px;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(0,198,184,0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .price-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 12px;
+    }
+    .price-amount {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 4rem;
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1;
+    }
+    .price-currency {
+      font-size: 1.5rem;
+      color: var(--gold);
+      vertical-align: top;
+      margin-top: 12px;
+      display: inline-block;
+    }
+    .price-note {
+      display: inline-block;
+      margin-top: 12px;
+      background: rgba(232,200,122,0.15);
+      color: var(--gold);
+      border: 1px solid rgba(232,200,122,0.3);
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 6px 16px;
+      border-radius: 50px;
+    }
+    .price-divider { margin: 28px 0; border-color: rgba(0,198,184,0.15); }
+    .price-features { text-align: left; display: flex; flex-direction: column; gap: 14px; margin-bottom: 32px; }
+    .price-feat {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .price-feat-check {
+      width: 22px; height: 22px;
+      background: rgba(0,198,184,0.15);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem;
+      color: var(--teal);
+      flex-shrink: 0;
+    }
+    .price-cta {
+      display: block;
+      background: var(--teal);
+      color: var(--navy);
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 18px;
+      border-radius: 50px;
+      text-decoration: none;
+      text-align: center;
+      transition: transform 0.25s, box-shadow 0.25s;
+      position: relative;
+      z-index: 1;
+    }
+    .price-cta:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,198,184,0.4); }
+
+    /* ── CTA BANNER ── */
+    .cta-banner {
+      background: linear-gradient(135deg, var(--navy-mid), #0d2a4a);
+      border: 1px solid rgba(0,198,184,0.2);
+      border-radius: 28px;
+      padding: 64px 6vw;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin: 0 auto 80px;
+      max-width: 900px;
+    }
+    .cta-banner::before {
+      content: '';
+      position: absolute;
+      top: -100px; left: 50%;
+      transform: translateX(-50%);
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(0,198,184,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .cta-banner h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .cta-banner p {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 480px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+      position: relative;
+    }
+    .phone-display {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 900;
+      color: var(--teal);
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .keyword-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(232,200,122,0.1);
+      border: 1px solid rgba(232,200,122,0.25);
+      color: var(--gold);
+      font-size: 0.9rem;
+      padding: 10px 22px;
+      border-radius: 50px;
+      position: relative;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 32px 6vw;
+      border-top: 1px solid rgba(0,198,184,0.1);
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; gap: 50px; padding: 60px 6vw; }
+      .hero-card { display: none; }
+      .how-wrapper { grid-template-columns: 1fr; gap: 50px; }
+      .price-card { padding: 36px 24px; }
+    }
+    @media (max-width: 520px) {
+      .hero-ctas { flex-direction: column; }
+      .btn-primary, .btn-secondary { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="neural-canvas"></canvas>
+
+<div class="page">
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">Невро<span>Онлайн</span></div>
+    <a href="https://wa.me/77009877120?text=Консультация" target="_blank" class="nav-cta">
+      WhatsApp арқылы жазылу
+    </a>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero" style="padding-top: 100px;">
+    <div class="hero-left">
+      <div class="badge">🟢 Онлайн · Қазір қолжетімді</div>
+      <h1>Невропатолог<br>онлайн – <em>5 минутта</em><br>жауап</h1>
+      <p class="hero-sub">
+        <strong>Масқара кезек, жол шығыны, жұмысқа бармай қалу</strong> – бәрі артта қалды.
+        Үйден шықпай-ақ білікті невропатологтан кеңес алыңыз.
+      </p>
+      <div class="hero-ctas">
+        <a href="https://wa.me/77009877120?text=Консультация" target="_blank" class="btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          WhatsApp-қа жазу
+        </a>
+        <a href="tel:+77009877120" class="btn-secondary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.82 19.79 19.79 0 01.01 1.22 2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+          Қоңырау шалу
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-card">
+      <div class="stat-grid">
+        <div class="stat-item">
+          <div class="stat-num">10+</div>
+          <div class="stat-label">Жыл тәжірибе</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">24/7</div>
+          <div class="stat-label">Қабылдау режимі</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Құпиялылық</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">5 мин</div>
+          <div class="stat-label">Жауап уақыты</div>
+        </div>
+      </div>
+      <hr class="divider" />
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="trust-row">
+          <div class="trust-icon">📋</div>
+          <span>Рецепт және анықтама ресімдейміз</span>
+        </div>
+        <div class="trust-row">
+          <div class="trust-icon">💻</div>
+          <span>WhatsApp / Zoom арқылы кеңес</span>
+        </div>
+        <div class="trust-row">
+          <div class="trust-icon">🔒</div>
+          <span>Деректеріңіз қорғалған</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section>
+    <div class="section-label">Артықшылықтарымыз</div>
+    <div class="section-title">Неліктен бізді таңдайды?</div>
+    <p class="section-sub">Сіздің уақытыңыз бағалы. Сондықтан біз қызметімізді мүмкіндігінше ыңғайлы ете алдық.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <div class="feature-title">Тәжірибелі дәрігерлер</div>
+        <div class="feature-desc">10+ жылдық тәжірибесі бар сертификатталған невропатологтар сіздің сұрақтарыңызға жауап береді.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📝</div>
+        <div class="feature-title">Рецепт ресімдеу</div>
+        <div class="feature-desc">Дәрігер онлайн рецепт пен анықтама дайындайды – клиникаға барудың қажеті жоқ.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Толық құпиялылық</div>
+        <div class="feature-desc">Сіздің жеке деректеріңіз бен медициналық ақпаратыңыз 100% қорғауда сақталады.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🕐</div>
+        <div class="feature-title">24/7 қолжетімді</div>
+        <div class="feature-desc">Кез келген уақытта, тәулігіне 24 сағат, аптасына 7 күн кеңес ала аласыз.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS + PRICE -->
+  <section>
+    <div class="how-wrapper">
+      <div>
+        <div class="section-label">Қалай жұмыс істейді</div>
+        <div class="section-title">3 қарапайым қадам</div>
+        <p class="section-sub" style="margin-bottom: 44px;">Тіркелуден консультация алуға дейін – тек бірнеше минут.</p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-line">
+              <div class="step-num">1</div>
+              <div class="step-connector"></div>
+            </div>
+            <div class="step-body">
+              <div class="step-title">WhatsApp-қа жазыңыз</div>
+              <div class="step-desc">+7 700 987 7120 нөміріне «Консультация» деп жазсаңыз, администратор лезде жауап береді.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-line">
+              <div class="step-num">2</div>
+              <div class="step-connector"></div>
+            </div>
+            <div class="step-body">
+              <div class="step-title">Ыңғайлы уақытты таңдаңыз</div>
+              <div class="step-desc">Сізге қолайлы кесте бойынша дәрігерді WhatsApp немесе Zoom арқылы брондаңыз.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-line">
+              <div class="step-num">3</div>
+              <div class="step-connector"></div>
+            </div>
+            <div class="step-body">
+              <div class="step-title">Кеңес алыңыз</div>
+              <div class="step-desc">Үйден шықпай отырып дәрігермен сөйлесіп, рецепт немесе анықтама алыңыз.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="price-card">
+        <div class="price-label">Бүгінгі баға</div>
+        <div>
+          <span class="price-amount">3 000</span>
+          <span class="price-currency"> ₸</span>
+        </div>
+        <div class="price-note">⏳ Жеңілдік – шектеулі уақытқа!</div>
+        <hr class="divider price-divider" />
+        <div class="price-features">
+          <div class="price-feat">
+            <div class="price-feat-check">✓</div>
+            <span>Толық онлайн консультация</span>
+          </div>
+          <div class="price-feat">
+            <div class="price-feat-check">✓</div>
+            <span>Рецепт / анықтама ресімдеу</span>
+          </div>
+          <div class="price-feat">
+            <div class="price-feat-check">✓</div>
+            <span>10+ жыл тәжірибелі дәрігер</span>
+          </div>
+          <div class="price-feat">
+            <div class="price-feat-check">✓</div>
+            <span>WhatsApp немесе Zoom арқылы</span>
+          </div>
+          <div class="price-feat">
+            <div class="price-feat-check">✓</div>
+            <span>24/7 қолжетімді</span>
+          </div>
+          <div class="price-feat">
+            <div class="price-feat-check">✓</div>
+            <span>Құпиялылық 100% сақталады</span>
+          </div>
+        </div>
+        <a href="https://wa.me/77009877120?text=Консультация" target="_blank" class="price-cta">
+          Қазір жазылу →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <div style="padding: 0 6vw;">
+    <div class="cta-banner">
+      <h2>Бүгін алғашқы қадам жасаңыз</h2>
+      <p>«Консультация» деп жазсаңыз, администратор бірден жауап береді.</p>
+      <div class="phone-display">+7 700 987 7120</div>
+      <div class="keyword-tag">💬 «Консультация» деп жазыңыз</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2025 НевроОнлайн · Барлық құқықтар қорғалған</p>
+    <p style="margin-top: 6px; font-size: 0.75rem;">Бұл веб-сайт медициналық кеңес алу платформасы болып табылады.</p>
+  </footer>
+
+</div>
+
+<!-- Neural canvas animation -->
+<script>
+  const canvas = document.getElementById('neural-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, nodes = [], mouse = { x: -1000, y: -1000 };
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function initNodes() {
+    nodes = [];
+    const count = Math.floor(W * H / 12000);
+    for (let i = 0; i < count; i++) {
+      nodes.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        r: Math.random() * 2 + 1,
+        alpha: Math.random() * 0.5 + 0.2
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const CONN = 130, MOUSE_CONN = 180;
+
+    // Draw connections
+    for (let i = 0; i < nodes.length; i++) {
+      const a = nodes[i];
+      // Node to node
+      for (let j = i + 1; j < nodes.length; j++) {
+        const b = nodes[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        if (d < CONN) {
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.strokeStyle = `rgba(0,198,184,${(1 - d/CONN) * 0.18})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+      // Node to mouse
+      const mx = a.x - mouse.x, my = a.y - mouse.y;
+      const md = Math.sqrt(mx*mx + my*my);
+      if (md < MOUSE_CONN) {
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(mouse.x, mouse.y);
+        ctx.strokeStyle = `rgba(0,198,184,${(1 - md/MOUSE_CONN) * 0.4})`;
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+      }
+    }
+
+    // Draw nodes
+    for (const n of nodes) {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,198,184,${n.alpha})`;
+      ctx.fill();
+
+      n.x += n.vx;
+      n.y += n.vy;
+      if (n.x < 0 || n.x > W) n.vx *= -1;
+      if (n.y < 0 || n.y > H) n.vy *= -1;
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', () => { resize(); initNodes(); });
+  window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+  resize();
+  initNodes();
+  draw();
+
+  // Scroll reveal
+  const cards = document.querySelectorAll('.feature-card');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 100);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  cards.forEach(c => observer.observe(c));
+</script>
+</body>
+</html>
